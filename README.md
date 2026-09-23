@@ -4,7 +4,7 @@ A first-person horror game set in a foggy forest at night. Find five glowing fox
 
 **[Play it in your browser →](https://miguelsolorio.github.io/nightfall/)** Headphones recommended.
 
-![The tall one standing at the edge of the flashlight beam, beside an abandoned cabin](docs/screenshots/monster.jpg)
+![The title Nightfall beside a moonlit pine forest in fog, where a green foxfire stone glows among the trees](public/media/og.jpg)
 
 ## How to play
 
@@ -46,6 +46,8 @@ Your car died at the trailhead. Somewhere in the woods, five **foxfire stones** 
 **Deer and owls** are harmless. They bolt or take flight when you get close or shine a light on them.
 
 **The tall one** follows a few rules:
+
+![The tall one standing at the edge of the flashlight beam, beside an abandoned cabin](docs/screenshots/monster.jpg)
 
 - It only moves while you aren't watching it: behind you, behind the trees, or whenever your light is off or flickering.
 - You only ever glimpse it at the edge of your beam. Point the beam straight at it and it's gone, for a while.
