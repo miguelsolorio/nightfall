@@ -1,4 +1,0 @@
-# Nightfall is a static site: no build step. Netlify serves public/ as-is
-# (index.html + styles.css + ES modules under src/; Three.js loads from cdnjs).
-[build]
-  publish = "public"
