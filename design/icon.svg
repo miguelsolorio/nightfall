@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1024 1024">
+  <!-- Nightfall app icon (master). A foxfire stone over a fogged treeline under a hazy moon.
+       Full-bleed so iOS/Android can mask it; key content stays inside the central 80% circle.
+       Rendered to PNG by scripts/build-media.mjs. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#05070d"/>
+      <stop offset=".48" stop-color="#0c121c"/>
+      <stop offset=".68" stop-color="#18212e"/>
+      <stop offset=".82" stop-color="#0f151e"/>
+      <stop offset="1" stop-color="#07090c"/>
+    </linearGradient>
+    <radialGradient id="haze">
+      <stop offset="0" stop-color="#a4b6de" stop-opacity=".34"/>
+      <stop offset=".3" stop-color="#37383a" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#29303f" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#b4f8d6" stop-opacity=".6"/>
+      <stop offset=".22" stop-color="#86e6b4" stop-opacity=".26"/>
+      <stop offset=".55" stop-color="#86e6b4" stop-opacity=".07"/>
+      <stop offset="1" stop-color="#86e6b4" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="pool">
+      <stop offset="0" stop-color="#9ff5c8" stop-opacity=".32"/>
+      <stop offset="1" stop-color="#9ff5c8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="mist" x="-20%" y="-100%" width="140%" height="300%"><feGaussianBlur stdDeviation="24"/></filter>
+    <filter id="bloom" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="34"/></filter>
+    <filter id="soft" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="5"/></filter>
+    <!-- Low-poly pine from world.js: bare trunk, four stacked cone tiers. Base at 0, 100 units tall. -->
+    <path id="pine" d="M-2.2 0L-.9-97H.9L2.2 0Z
+      M0-58.3L23.1-25Q0-19.5-23.1-25Z
+      M0-73.2L19.4-43.5Q0-38.8-19.4-43.5Z
+      M0-87L14.8-61.1Q0-57.4-14.8-61.1Z
+      M0-100L9.3-77.8Q0-75.4-9.3-77.8Z"/>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#sky)"/>
+
+  <!-- Moon in the haze, and a few stars -->
+  <circle cx="300" cy="250" r="300" fill="url(#haze)"/>
+  <circle cx="300" cy="250" r="36" fill="#dfe8fa" opacity=".5" filter="url(#soft)"/>
+  <circle cx="300" cy="250" r="29" fill="#eaf2ff"/>
+  <g fill="#9aa6bc">
+    <circle cx="612" cy="118" r="2.6" opacity=".55"/><circle cx="742" cy="196" r="2" opacity=".4"/>
+    <circle cx="866" cy="92" r="2.4" opacity=".5"/><circle cx="930" cy="262" r="1.8" opacity=".35"/>
+    <circle cx="512" cy="232" r="1.8" opacity=".35"/><circle cx="148" cy="118" r="2.2" opacity=".45"/>
+    <circle cx="96" cy="336" r="1.6" opacity=".3"/><circle cx="688" cy="330" r="1.6" opacity=".3"/>
+    <circle cx="438" cy="96" r="2" opacity=".4"/><circle cx="808" cy="382" r="1.6" opacity=".28"/>
+    <circle cx="978" cy="150" r="2" opacity=".4"/><circle cx="226" cy="420" r="1.5" opacity=".25"/>
+  </g>
+
+  <!-- Far treeline, swallowed by fog -->
+  <g fill="#131b26">
+    <use href="#pine" transform="translate(18 704) scale(2.3)"/>
+    <use href="#pine" transform="translate(96 698) scale(2.6 2.5)"/>
+    <use href="#pine" transform="translate(168 708) scale(2.1)"/>
+    <use href="#pine" transform="translate(250 700) scale(2.5 2.4)"/>
+    <use href="#pine" transform="translate(334 706) scale(2.2)"/>
+    <use href="#pine" transform="translate(420 700) scale(2.4 2.6)"/>
+    <use href="#pine" transform="translate(516 708) scale(2.2 2.1)"/>
+    <use href="#pine" transform="translate(604 698) scale(2.5)"/>
+    <use href="#pine" transform="translate(690 706) scale(2.2 2.3)"/>
+    <use href="#pine" transform="translate(772 700) scale(2.6 2.4)"/>
+    <use href="#pine" transform="translate(856 708) scale(2.1)"/>
+    <use href="#pine" transform="translate(936 700) scale(2.5 2.6)"/>
+    <use href="#pine" transform="translate(1012 706) scale(2.3)"/>
+  </g>
+  <rect x="-60" y="640" width="1144" height="130" fill="#1a2432" opacity=".8" filter="url(#mist)"/>
+
+  <!-- Middle trees frame the clearing -->
+  <g fill="#0c1118">
+    <use href="#pine" transform="translate(-14 812) scale(3.9 4.1)"/>
+    <use href="#pine" transform="translate(118 800) scale(3.4 3.6)"/>
+    <use href="#pine" transform="translate(236 818) scale(3.2 3.3)"/>
+    <use href="#pine" transform="translate(792 816) scale(3.2 3.4)"/>
+    <use href="#pine" transform="translate(908 802) scale(3.5 3.7)"/>
+    <use href="#pine" transform="translate(1036 812) scale(3.9 4.1)"/>
+  </g>
+  <rect x="-60" y="770" width="1144" height="110" fill="#141c27" opacity=".7" filter="url(#mist)"/>
+  <rect y="840" width="1024" height="184" fill="#07090c"/>
+  <rect x="-60" y="800" width="1144" height="80" fill="#0e141c" opacity=".9" filter="url(#mist)"/>
+
+  <!-- Nearest trunks at the edges -->
+  <g fill="#050709">
+    <use href="#pine" transform="translate(-48 1100) scale(7.6 8.2)"/>
+    <use href="#pine" transform="translate(1072 1100) scale(7.6 8.2)"/>
+  </g>
+
+  <!-- Foxfire stone: glow, light pool, wireframe shell, faceted core -->
+  <circle cx="512" cy="560" r="400" fill="url(#glow)"/>
+  <ellipse cx="512" cy="846" rx="300" ry="56" fill="url(#pool)"/>
+  <polygon points="512,438.8 625.3,547.3 512,681.3 398.8,572.8" fill="#c8ffe6" opacity=".85" filter="url(#bloom)"/>
+  <g fill="none" stroke="#9ff5c8" stroke-width="5" stroke-linejoin="round" stroke-opacity=".5">
+    <path d="M512 351.5L688.1 589.9M512 351.5L388.6 602.6M512 351.5L335.9 530.1M512 351.5L635.4 517.4
+             M512 768.5L688.1 589.9M512 768.5L388.6 602.6M512 768.5L335.9 530.1M512 768.5L635.4 517.4
+             M688.1 589.9L388.6 602.6L335.9 530.1L635.4 517.4Z"/>
+  </g>
+  <polygon points="512,438.8 398.8,572.8 564.9,587.4" fill="#f4fffa"/>
+  <polygon points="512,438.8 564.9,587.4 625.3,547.3" fill="#cdfae4"/>
+  <polygon points="398.8,572.8 512,681.3 564.9,587.4" fill="#a9f0cc"/>
+  <polygon points="564.9,587.4 512,681.3 625.3,547.3" fill="#86deb2"/>
+</svg>

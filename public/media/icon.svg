@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Nightfall favicon: a glowing foxfire stone. Also rendered into favicon.ico by scripts/build-media.mjs. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#101824"/><stop offset="1" stop-color="#07090c"/></linearGradient>
+    <radialGradient id="glow"><stop offset="0" stop-color="#b4f8d6" stop-opacity=".55"/><stop offset=".45" stop-color="#86e6b4" stop-opacity=".16"/><stop offset="1" stop-color="#86e6b4" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <circle cx="32" cy="33" r="30" fill="url(#glow)"/>
+  <polygon points="32,11.5 13.8,35 40.5,37.5" fill="#f4fffa"/>
+  <polygon points="32,11.5 40.5,37.5 50.2,31" fill="#cdfae4"/>
+  <polygon points="13.8,35 32,54.5 40.5,37.5" fill="#a9f0cc"/>
+  <polygon points="40.5,37.5 32,54.5 50.2,31" fill="#86deb2"/>
+</svg>

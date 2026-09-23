@@ -25,7 +25,13 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/configure-pages@v6
+      - id: pages
+        uses: actions/configure-pages@v6
+      # og:image must be absolute for Facebook, X and LinkedIn; stamp in the site's address
+      - name: Set share image URL
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+        run: sed -i "s|__SITE_URL__|$SITE_URL|g" public/index.html
       - uses: actions/upload-pages-artifact@v5
         with:
           path: public
