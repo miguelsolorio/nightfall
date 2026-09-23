@@ -1,0 +1,73 @@
+/* Nightfall — UI styles: tokens, post-process overlays, HUD, screens */
+:root{
+  color-scheme: dark;
+  --ink:#07090c;          /* night ground */
+  --bone:#d9d3c4;         /* primary text */
+  --ash:#8b928c;          /* secondary text */
+  --line:rgba(217,211,196,.22);
+  --foxfire:#bfe9cf;      /* glow of the stones */
+  --blood:#b23a2c;        /* danger */
+  --threat:0;             /* 0..1, driven from JS */
+  --display:"IM Fell English SC","IM Fell English",Georgia,"Times New Roman",serif;
+  --serif:"IM Fell English",Georgia,"Times New Roman",serif;
+  --mono:"Cutive Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;background:var(--ink);color:var(--bone);overflow:hidden}
+body{font-family:var(--serif);-webkit-font-smoothing:antialiased}
+#game{position:fixed;inset:0;width:100%;height:100%;display:block}
+
+/* Post-process overlays (cheap CSS instead of shader passes) */
+.fx{position:fixed;inset:0;pointer-events:none}
+#vignette{background:radial-gradient(ellipse 80% 75% at 50% 50%,transparent calc(42% - var(--threat)*20%),rgba(0,0,0,.5) 80%,rgba(0,0,0,.92) 100%)}
+#threatTint{background:radial-gradient(ellipse at center,transparent 35%,rgba(96,10,6,.6) 100%);opacity:calc(var(--threat)*var(--threat)*.85)}
+#grain{opacity:.07;background-size:180px 180px;animation:grain .7s steps(6) infinite}
+@keyframes grain{0%{background-position:0 0}17%{background-position:-41px 23px}33%{background-position:57px -44px}50%{background-position:-13px 71px}67%{background-position:77px 9px}83%{background-position:-60px -30px}100%{background-position:0 0}}
+#flash{opacity:0;background:#fff}
+
+/* HUD */
+#hud{position:fixed;inset:0;pointer-events:none;font-family:var(--mono);z-index:5}
+#stones{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:20px;display:flex;align-items:center;gap:14px;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--ash);text-shadow:0 0 8px #000}
+#pips{display:flex;gap:10px}
+#pips i{display:block;width:9px;height:9px;transform:rotate(45deg);border:1px solid rgba(191,233,207,.5);transition:background .6s,box-shadow .6s}
+#pips i.on{background:var(--foxfire);box-shadow:0 0 10px 2px rgba(191,233,207,.55)}
+#stoneCount{color:var(--bone);font-variant-numeric:tabular-nums;letter-spacing:.08em}
+#stamina{position:absolute;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));width:min(220px,50vw);height:3px;transform:translateX(-50%);background:rgba(217,211,196,.13);transition:opacity .8s}
+#staminaFill{height:100%;background:var(--bone);opacity:.75;transform-origin:left center}
+#stamina.tired #staminaFill{background:var(--blood);opacity:1}
+#subtitle{position:absolute;left:50%;bottom:calc(66px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(40rem,calc(100% - 32px));text-align:center;font-family:var(--serif);font-style:italic;font-size:clamp(17px,2.1vw,22px);line-height:1.45;color:var(--bone);text-shadow:0 1px 14px #000,0 0 3px #000;opacity:0;transition:opacity .6s}
+#subtitle.on{opacity:1}
+#message{position:absolute;left:50%;top:21%;transform:translateX(-50%);width:min(36rem,calc(100% - 32px));text-align:center;font-family:var(--display);font-size:clamp(18px,2.3vw,26px);letter-spacing:.05em;color:var(--bone);text-shadow:0 0 18px #000,0 0 4px #000;opacity:0;transition:opacity .9s}
+#message.on{opacity:.92}
+#debug{position:fixed;top:12px;right:12px;z-index:30;font:12px/1.45 var(--mono);color:#a8e6c4;background:rgba(0,0,0,.55);padding:6px 9px;white-space:pre;pointer-events:none}
+
+/* Menu / pause / end screens */
+.screen{position:fixed;inset:0;z-index:20;display:flex;align-items:center;overflow-y:auto;padding-inline:clamp(16px,7vw,104px);padding-block:max(28px,env(safe-area-inset-top,0px)) max(28px,env(safe-area-inset-bottom,0px));background:linear-gradient(90deg,rgba(7,9,12,.95) 0%,rgba(7,9,12,.8) 40%,rgba(7,9,12,.3) 75%,rgba(7,9,12,.12) 100%)}
+.screen.clickable{cursor:pointer}
+.sheet{max-width:32rem;display:grid;gap:18px}
+.eyebrow{margin:0;font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ash)}
+h1,h2{margin:0;font-family:var(--display);font-weight:400;line-height:.9;text-wrap:balance}
+h1{font-size:clamp(3.4rem,12vw,7.4rem);letter-spacing:.01em}
+h2{font-size:clamp(2.6rem,8vw,4.6rem)}
+.lede{margin:0;max-width:34em;font-size:clamp(17px,1.55vw,19px);line-height:1.52;color:var(--bone)}
+.lede em{color:var(--foxfire)}
+.keys{margin:4px 0 0;display:grid;grid-template-columns:auto 1fr;gap:9px 18px;align-items:center;font-family:var(--mono);font-size:13px;color:var(--ash)}
+.keys dt{display:flex;gap:4px}
+.keys dd{margin:0;letter-spacing:.05em}
+kbd{min-width:1.9em;padding:3px 6px 2px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--bone);border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;background:rgba(217,211,196,.05)}
+.cta{justify-self:start;margin-top:6px;padding:4px 0 6px;font-family:var(--display);font-size:23px;letter-spacing:.08em;color:var(--foxfire);background:none;border:0;border-bottom:1px solid rgba(191,233,207,.42);cursor:pointer;animation:breathe 2.8s ease-in-out infinite}
+.cta:hover{border-bottom-color:var(--foxfire)}
+.cta:focus-visible{outline:1px solid var(--foxfire);outline-offset:6px}
+@keyframes breathe{0%,100%{opacity:.55}50%{opacity:1}}
+.note{margin:0;font-family:var(--mono);font-size:12px;letter-spacing:.05em;color:var(--ash)}
+.stats{margin:0;display:flex;flex-wrap:wrap;gap:12px 36px}
+.stats div{display:grid;gap:4px}
+.stats dt{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ash)}
+.stats dd{margin:0;font-family:var(--display);font-size:30px;font-variant-numeric:tabular-nums}
+#end.lose h1{color:var(--blood)}
+#end.win h1{color:var(--foxfire)}
+#start h1{animation:flicker 4.5s linear 1}
+@keyframes flicker{0%{opacity:0}6%{opacity:1}7%{opacity:.25}9%{opacity:1}52%{opacity:1}53%{opacity:.45}54%{opacity:1}100%{opacity:1}}
+@media (max-width:640px){.screen{align-items:flex-end;background:linear-gradient(0deg,rgba(7,9,12,.96) 0%,rgba(7,9,12,.85) 60%,rgba(7,9,12,.4) 100%)}}
+@media (prefers-reduced-motion:reduce){#grain,.cta,#start h1{animation:none}}

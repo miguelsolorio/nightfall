@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nightfall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cutive+Mono&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<canvas id="game" aria-label="Nightfall — a first-person walk through a foggy forest"></canvas>
+<div class="fx" id="vignette"></div>
+<div class="fx" id="threatTint"></div>
+<div class="fx" id="grain"></div>
+<div class="fx" id="flash"></div>
+
+<div id="hud" hidden>
+  <div id="stones"><span>Foxfire</span><span id="pips"><i></i><i></i><i></i><i></i><i></i></span><span id="stoneCount">0 / 5</span></div>
+  <div id="message"></div>
+  <div id="subtitle"></div>
+  <div id="stamina"><div id="staminaFill"></div></div>
+</div>
+<div id="debug" hidden></div>
+
+<section id="start" class="screen clickable" aria-labelledby="title">
+  <div class="sheet">
+    <p class="eyebrow">Hollow Pines State Forest · 2:14 a.m.</p>
+    <h1 id="title">Nightfall</h1>
+    <p class="lede">Your car died at the trailhead hours ago. Somewhere in these woods, five <em>foxfire stones</em> still glow. Gather them and the way out will open. Keep your light on. Don't look away for long.</p>
+    <dl class="keys">
+      <div style="display:contents"><dt><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></dt><dd>Walk</dd></div>
+      <div style="display:contents"><dt><kbd>Mouse</kbd></dt><dd>Look around</dd></div>
+      <div style="display:contents"><dt><kbd>Shift</kbd></dt><dd>Run while you have breath</dd></div>
+      <div style="display:contents"><dt><kbd>F</kbd></dt><dd>Flashlight on / off</dd></div>
+      <div style="display:contents"><dt><kbd>Esc</kbd></dt><dd>Pause</dd></div>
+    </dl>
+    <button id="begin" class="cta" type="button">Click to begin</button>
+    <p class="note" id="touchNote" hidden>This one needs a keyboard and mouse.</p>
+    <p class="note">Headphones recommended.</p>
+  </div>
+</section>
+
+<section id="pause" class="screen clickable" hidden aria-labelledby="pauseTitle">
+  <div class="sheet">
+    <p class="eyebrow">Paused</p>
+    <h2 id="pauseTitle">The forest waits.</h2>
+    <button id="resume" class="cta" type="button">Click to resume</button>
+  </div>
+</section>
+
+<section id="end" class="screen" hidden aria-labelledby="endTitle">
+  <div class="sheet">
+    <p class="eyebrow" id="endEyebrow"></p>
+    <h1 id="endTitle"></h1>
+    <p class="lede" id="endText"></p>
+    <dl class="stats">
+      <div><dt>Foxfire found</dt><dd id="statStones">0 / 5</dd></div>
+      <div><dt>Time in the woods</dt><dd id="statTime">0:00</dd></div>
+    </dl>
+    <button id="restart" class="cta" type="button">Restart</button>
+  </div>
+</section>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.186.0/three.module.min.js" } }
+</script>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
