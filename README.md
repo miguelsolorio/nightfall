@@ -26,7 +26,7 @@ On phones and tablets the game goes fullscreen where the browser allows it. It's
 
 - **Stamina.** Running drains your breath (the bar at the bottom of the screen). Run it dry and you're stuck walking until you recover.
 - **Flashlight.** It's your main light, and it flickers sometimes, more often when something is near. Many things in the forest react to it.
-- **Dread.** A low drone, a heartbeat and a red edge creep in when something dangerous is close.
+- **Dread.** A low drone, a heartbeat, a slow two-note pulse and a red edge creep in when something dangerous is close. The rest of the time there's a score, all synthesized: a pad that never resolves, a music box somewhere out in the dark, and a far-off choir.
 
 ## What's in the woods
 
@@ -44,12 +44,22 @@ On phones and tablets the game goes fullscreen where the browser allows it. It's
     <td><img src="docs/screenshots/wanderer.jpg" alt="A man in a coat and hat speaking a single line"></td>
   </tr>
   <tr>
-    <td><b>Ghosts</b> drift toward you, whispering. Catch one in your beam and it dissolves. If one reaches you, it takes your breath.</td>
+    <td><b>Ghosts</b> come at you in lurches, whispering and moaning, their heads snapping to wrong angles. Catch one in your beam and it dissolves. If one reaches you, it's in your face, and it takes your breath.</td>
     <td><b>The wanderer</b> is lost too. He has one thing to say to you.</td>
   </tr>
 </table>
 
 **Deer and owls** are harmless. They bolt or take flight when you get close or shine a light on them.
+
+**The forest** has spruce thickets, old dying stands, pale birch groves and blighted ground around the cabin and the stone circle. Between them are three open fields where the fog sits low over tall grass:
+
+- **The Hollow Field** has a scarecrow on a post. Every time you look away and back, it's facing you. Don't look away too often.
+- **The old pasture** lies past the broken fence. Someone has been stacking stones there, and there are things hanging in the trees around it.
+- **The graveyard** is where the ghosts come more often, and where the music box plays.
+
+**Eyes** watch you from beside the trunks, just outside your beam. Put the light on them, or walk toward them, and they're gone.
+
+Keep your ears open, too. Something knocks on wood out there, and sometimes the footsteps behind you aren't your own.
 
 **The tall one** follows a few rules:
 
@@ -82,14 +92,15 @@ public/
   styles.css          HUD, menus, and overlay effects
   src/
     main.js           frame loop and wiring
-    world.js          terrain, instanced forest, landmarks, collision
+    world.js          terrain, fields, biomes, landmarks, collision, per-chunk baking
+    flora.js          tree, undergrowth and grass variants
     player.js         movement, stamina, footsteps
     touch.js          on-screen stick and buttons for phones and tablets
     flashlight.js     beam, flicker, and "is this lit?" checks
-    audio.js          all sound, synthesized with the Web Audio API
+    audio.js          all sound and the score, synthesized with the Web Audio API
     relics.js         the foxfire stones
     game.js           start / pause / restart, win and lose
-    creatures/        deer, owls, wolves, ghosts, the wanderer, the tall one
+    creatures/        deer, owls, wolves, ghosts, the wanderer, the scarecrow, the eyes, the tall one
 ```
 
 Built with [Three.js](https://threejs.org/) r186.

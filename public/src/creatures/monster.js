@@ -49,6 +49,7 @@ export const monster = {
       const s = findSpot(34, 42, 'hidden');
       if (!s) { this.timer = 2; return; }
       this.place(s.x, s.z); this.state = 'stalk'; g.visible = true;
+      AudioSys.bowedMetal(null, 0.9);   // it's here now
       return;
     }
     if (this.state !== 'stalk') return;

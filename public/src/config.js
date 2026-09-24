@@ -1,11 +1,17 @@
 /* Config & utilities
    Tunables, seeded RNG, value noise, small math helpers.
 */
+// Phones and tablets (touch is the primary pointer) get a lighter render budget
+export const MOBILE = matchMedia('(pointer: coarse)').matches;
+
 export const CFG = {
   WORLD_R: 120,          // playable radius (m)
   TERRAIN: 330,          // terrain edge length (m)
   CHUNK: 30,             // culling chunk size (m)
-  CULL_DIST: 72,         // beyond this, fog is opaque — skip drawing
+  CULL_DIST: MOBILE ? 62 : 72,        // beyond this, fog is opaque — skip drawing
+  PIXEL_RATIO: MOBILE ? 1.25 : 1.5,   // cap; the adaptive governor in main.js may go lower
+  SHADOW_MAP: MOBILE ? 512 : 1024,
+  MIST: MOBILE ? 12 : 24,             // drifting fog billboards (overdraw-heavy)
   FOG_COLOR: 0x121922,
   FOG_DENSITY: 0.047,
   EYE: 1.7,

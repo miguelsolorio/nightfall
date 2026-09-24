@@ -3,7 +3,7 @@
 */
 import * as THREE from 'three';
 import { CFG, R } from '../config.js';
-import { mergeParts, B, P, CYL, vcMat } from '../geometry.js';
+import { mergeParts, B, P, CYL, lumpy, vcMat } from '../geometry.js';
 import { inFrustum } from '../scene.js';
 import { heightAt, blocked, insideCabin } from '../world.js';
 import { player } from '../state.js';
@@ -50,11 +50,61 @@ export const GEO = {};
   GEO.owlEyes = mergeParts([B(0.045, 0.045, 0.01, 0.046, 0.02, 0.124, 0xffffff), B(0.045, 0.045, 0.01, -0.046, 0.02, 0.124, 0xffffff)]);
   GEO.owlWing = mergeParts([B(0.03, 0.3, 0.22, 0, -0.14, 0, brown)]);
 }
-{ // Ghost
-  const body = new THREE.CylinderGeometry(0.15, 0.52, 1.45, 12, 4, true), pos = body.attributes.position;
-  for (let i = 0; i < pos.count; i++) if (pos.getY(i) < -0.7) pos.setY(i, pos.getY(i) + (Math.random() - 0.5) * 0.28);
-  GEO.ghost = mergeParts([P(body, 0xffffff, 0, 0.78, 0), P(new THREE.SphereGeometry(0.2, 10, 8), 0xffffff, 0, 1.66, 0), P(CYL(0.04, 0.08, 0.75, 6), 0xffffff, 0.28, 1.1, 0.05, 0, 0, 0.2), P(CYL(0.04, 0.08, 0.75, 6), 0xffffff, -0.28, 1.1, 0.05, 0, 0, -0.2)]);
-  GEO.ghostEyes = mergeParts([B(0.06, 0.035, 0.03, 0.07, 1.69, 0.19, 0), B(0.06, 0.035, 0.03, -0.07, 1.69, 0.19, 0)]);
+{ // Ghost — faces +Z, ~2.1 m. Pale parts are drawn by the ghost shader (smooth normals for
+  // the rim glow); the head is its own piece so it can twitch. Dark parts (hair, eye
+  // sockets, mouth) are drawn on top of the glow.
+  const prof = [[0.46, 0], [0.4, 0.28], [0.3, 0.72], [0.22, 1.1], [0.19, 1.3], [0.25, 1.5], [0.3, 1.6], [0.22, 1.69], [0.08, 1.75], [0.05, 1.8]].map(([r, y]) => new THREE.Vector2(r, y));
+  const SEG = 16, np = prof.length, robe = new THREE.LatheGeometry(prof, SEG), rp = robe.attributes.position;
+  const hem = Array.from({ length: SEG }, (_, i) => i % 2 ? -R(0.15, 0.5) : R(-0.05, 0.1));   // ragged strips, long and short
+  for (let i = 0; i <= SEG; i++) { const k = i * np, o = hem[i % SEG]; rp.setY(k, rp.getY(k) + o); rp.setY(k + 1, rp.getY(k + 1) + o * 0.4); }
+  const pale = [P(robe, 0xffffff), P(CYL(0.035, 0.05, 0.24, 6), 0xffffff, 0, 1.82, 0)];
+  for (const s of [-1, 1]) {   // arms too long, hanging past the knees, with thin fingers
+    const arm = CYL(0.03, 0.05, 1.1, 6); arm.translate(0, -0.55, 0);
+    pale.push(P(arm, 0xffffff, s * 0.27, 1.6, 0.02, -0.12, 0, s * 0.1));
+    for (let f = 0; f < 4; f++) pale.push(P(new THREE.ConeGeometry(0.012, R(0.2, 0.28), 3), 0xffffff, s * (0.38 + f * 0.012), 0.4, 0.15 + (f - 1.5) * 0.025, Math.PI + R(-0.2, 0.2), 0, s * R(0, 0.3)));
+  }
+  GEO.ghostBody = mergeParts(pale, { smooth: true });
+  GEO.ghostHead = mergeParts([P(new THREE.SphereGeometry(0.12, 14, 10), 0xffffff, 0, 0, 0, 0, 0, 0, 0.88, 1.3, 0.95)], { smooth: true });
+  const ell = (x, y, z, sx, sy, sz) => P(new THREE.SphereGeometry(1, 8, 6), 0x000000, x, y, z, 0, 0, 0, sx, sy, sz);
+  // Long black hair. The part over the face moves with the head; the long strands
+  // (GEO.ghostHair) only half follow it, so they keep hanging when the head lolls.
+  const face = [ell(0.045, 0.03, 0.098, 0.033, 0.024, 0.014), ell(-0.045, 0.03, 0.098, 0.033, 0.024, 0.014)], hair = [];
+  for (const x of [-0.12, -0.095, -0.07, -0.048, 0.085, 0.11]) {   // parted so one eye shows
+    face.push(B(0.022, 0.32, 0.008, x, 0.02, 0.1, 0x000000, -0.2));
+    const len = R(0.4, 0.7); hair.push(B(0.022, len, 0.008, x + R(-0.01, 0.01), -0.12 - len / 2, 0.13, 0x000000, R(-0.05, 0.05)));
+  }
+  for (let i = 0; i < 12; i++) {
+    const a = 1.1 + (i / 11) * (Math.PI * 2 - 2.2), len = R(0.55, 0.9);
+    face.push(B(0.03, 0.2, 0.01, Math.sin(a) * 0.11, 0.06, Math.cos(a) * 0.1, 0x000000, Math.cos(a) * 0.12, a, -Math.sin(a) * 0.12));
+    hair.push(B(0.03, len, 0.01, Math.sin(a) * 0.115, -0.02 - len / 2, Math.cos(a) * 0.105, 0x000000, Math.cos(a) * 0.08, a, -Math.sin(a) * 0.08));
+  }
+  GEO.ghostFace = mergeParts(face);
+  GEO.ghostHair = mergeParts(hair);
+  GEO.ghostMouth = mergeParts([ell(0, 0, 0, 0.026, 0.04, 0.012)]);
+  GEO.ghostPupils = mergeParts([B(0.009, 0.009, 0.004, 0.045, 0.03, 0.113, 0xffffff), B(0.009, 0.009, 0.004, -0.045, 0.03, 0.113, 0xffffff)]);
+}
+{ // Scarecrow — faces +Z. Its own stake reaches the ground; arms lashed to a crossbar at 1.95 m
+  const wood = 0x4a3d31, coat = 0x2f2c25, rag = 0x3a342a, straw = 0x8a7a55, twine = 0x3a2e20;
+  const parts = [
+    B(0.1, 1.5, 0.1, 0, 0.75, -0.05, wood), B(1.7, 0.09, 0.09, 0, 1.95, -0.05, wood),
+    B(0.46, 0.72, 0.26, 0, 1.58, 0, coat, 0.04), B(0.5, 0.2, 0.28, 0, 1.92, 0, coat),
+    B(0.14, 0.55, 0.14, 0.1, 1.0, 0.02, rag, 0.05, 0, 0.06), B(0.14, 0.5, 0.14, -0.1, 1.02, 0.02, rag, -0.04, 0, -0.1),   // limp, stuffed legs
+  ];
+  for (const s of [-1, 1]) {
+    parts.push(B(0.62, 0.15, 0.17, s * 0.52, 1.93, 0, coat), B(0.08, 0.12, 0.14, s * 0.78, 1.94, -0.02, twine));
+    for (let k = 0; k < 5; k++) parts.push(P(new THREE.ConeGeometry(0.025, R(0.18, 0.3), 3), straw, s * (0.85 + R(0, 0.05)), 1.93 + R(-0.05, 0.05), R(-0.05, 0.05), R(-0.4, 0.4), 0, -s * (Math.PI / 2 + R(-0.5, 0.5))));
+    for (let k = 0; k < 3; k++) parts.push(B(R(0.05, 0.08), R(0.2, 0.4), 0.01, s * R(0.3, 0.7), 1.72, 0.07, rag, 0, 0, R(-0.15, 0.15)));
+  }
+  for (let k = 0; k < 7; k++) parts.push(B(R(0.05, 0.09), R(0.25, 0.55), 0.01, R(-0.2, 0.2), 1.1, R(-0.13, 0.13), rag, R(-0.1, 0.1), R(-0.5, 0.5), R(-0.15, 0.15)));
+  GEO.scarecrow = mergeParts(parts);
+  const sack = 0x7a6a4c, stitch = 0x120f0c, hat = 0x24211c, head = [
+    P(lumpy(new THREE.IcosahedronGeometry(0.2, 1), 0.08, 1, Math.random), sack, 0, 0, 0, 0, 0, 0, 1, 1.12, 0.95),
+    P(CYL(0.07, 0.09, 0.08, 6), twine, 0, -0.22, 0),
+    P(CYL(0.3, 0.3, 0.02, 10), hat, 0, 0.19, 0, 0.12, 0, -0.08), P(new THREE.ConeGeometry(0.15, 0.32, 7), hat, 0.02, 0.35, -0.02, 0.1, 0, -0.2),
+  ];
+  for (const s of [-1, 1]) head.push(B(0.075, 0.014, 0.01, s * 0.07, 0.05, 0.2, stitch, 0, 0, 0.75), B(0.075, 0.014, 0.01, s * 0.07, 0.05, 0.2, stitch, 0, 0, -0.75));
+  for (let k = 0; k < 6; k++) head.push(B(0.035, 0.012, 0.01, -0.09 + k * 0.036, -0.08 + (k % 2) * 0.012, 0.2 - Math.abs(k - 2.5) * 0.006, stitch, 0, 0, k % 2 ? 0.5 : -0.5));
+  GEO.scarecrowHead = mergeParts(head);
 }
 { // Wanderer — faces +Z
   const coat = 0x46443b, trou = 0x292723, skin = 0xb0a290, hat = 0x1f1e1b, boot = 0x171614, lamp = 0x302b24;

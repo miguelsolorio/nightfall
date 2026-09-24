@@ -5,7 +5,7 @@
 */
 import { CFG, clamp, lerp, R } from './config.js';
 import { camera } from './scene.js';
-import { resolveCollision, groundAt } from './world.js';
+import { resolveCollision, groundAt, meadowAt } from './world.js';
 import { player, input, blockers } from './state.js';
 import { AudioSys } from './audio.js';
 import { UI } from './ui.js';
@@ -58,7 +58,7 @@ export function updatePlayer(dt) {
   if (player.speed > 0.4) {
     player.bob += dt * (player.running ? 11.5 : 7.8 * (0.5 + 0.5 * amt));
     const step = Math.floor(player.bob / Math.PI);
-    if (step !== player.lastStep) { player.lastStep = step; AudioSys.step(player.running); }
+    if (step !== player.lastStep) { player.lastStep = step; AudioSys.step(player.running, meadowAt(p.x, p.z) > 0.4); }
   }
   const ground = groundAt(p.x, p.z);
   p.y = ground;

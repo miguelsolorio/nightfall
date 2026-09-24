@@ -3,8 +3,8 @@
    small test hook (window.__nf).
 */
 import { CFG, DEBUG, clamp, lerp } from './config.js';
-import { renderer, scene, camera, sky, spot, hemi, moon } from './scene.js';
-import { updateCulling, updateMist, PINES, DEADS, chunks, CABIN, WELL, CIRCLE, BOULDERS } from './world.js';
+import { renderer, scene, camera, sky, spot, hemi, moon, updateClouds } from './scene.js';
+import { updateCulling, updateMist, updateFoliage, meadowAt, PINES, DEADS, chunks, CABIN, WELL, CIRCLE, BOULDERS, MEADOWS, HOLLOW, GRAVEYARD } from './world.js';
 import { game, player, input, flash } from './state.js';
 import { updatePlayer } from './player.js';
 import { updateFlashlight, updateBeamVectors } from './flashlight.js';
@@ -16,6 +16,8 @@ import { owls } from './creatures/owls.js';
 import { wolfPack } from './creatures/wolves.js';
 import { ghostMgr } from './creatures/ghosts.js';
 import { wanderer } from './creatures/wanderer.js';
+import { scarecrow } from './creatures/scarecrow.js';
+import { eyes } from './creatures/eyes.js';
 import { monster } from './creatures/monster.js';
 import { resetGame, stepCinematic } from './game.js';
 import './controls.js';
@@ -31,9 +33,15 @@ function step(dt) {
   wolfPack.update(dt);
   ghostMgr.update(dt);
   wanderer.update(dt);
+  scarecrow.update(dt);
+  eyes.update(dt);
   monster.update(dt);
   if (game.state !== 'playing') return;   // caught this frame
   updateRelics(dt);
+
+  // The fog thins a little over the open fields; now and then clouds cover the moon
+  scene.fog.density = lerp(scene.fog.density, CFG.FOG_DENSITY * (1 - 0.25 * meadowAt(player.pos.x, player.pos.z)), 1 - Math.exp(-dt * 0.8));
+  updateClouds(game.time);
 
   // Threat: how close is something that wants you? Drives drone, heartbeat, vignette, flicker
   let threat = 0;
@@ -51,6 +59,19 @@ function attract(dt) {   // slow look around the clearing behind the title scree
   updatePlayer(0); updateFlashlight(dt, 0); updateBeamVectors(); updateRelics(dt);
 }
 
+// Adaptive resolution: if frames run long during play, render fewer pixels
+// (down to a floor), and step back up once there's headroom again.
+const res = { max: renderer.getPixelRatio(), min: Math.min(0.75, renderer.getPixelRatio()), acc: 0, n: 0 };
+function adaptResolution(raw) {
+  if (game.state !== 'playing' || raw > 0.25) return;   // ignore menus and tab-switch hiccups
+  res.acc += raw; res.n++;
+  if (res.acc < 2) return;
+  const avg = res.acc / res.n, ratio = renderer.getPixelRatio();
+  res.acc = res.n = 0;
+  if (avg > 1 / 40 && ratio > res.min) renderer.setPixelRatio(Math.max(res.min, ratio - 0.15));
+  else if (avg < 1 / 57 && ratio < res.max) renderer.setPixelRatio(Math.min(res.max, ratio + 0.1));
+}
+
 const debugEl = $('debug');
 if (DEBUG) debugEl.hidden = false;
 let last = performance.now(), fpsAcc = 0, fpsN = 0, fpsT = 0;
@@ -65,13 +86,15 @@ function frame(now) {
   sky.position.copy(camera.position);
   updateCulling();
   updateMist(dt);
+  updateFoliage(game.t);
   renderer.render(scene, camera);
+  adaptResolution(raw);
 
   if (!debugEl.hidden) {
     fpsAcc += raw; fpsN++;
     if ((fpsT += raw) > 0.5) {
       const i = renderer.info.render;
-      debugEl.textContent = `fps   ${(fpsN / fpsAcc).toFixed(0)}\ncalls ${i.calls}\ntris  ${(i.triangles / 1000).toFixed(0)}k\npos   ${player.pos.x.toFixed(1)}, ${player.pos.z.toFixed(1)}\nthing ${monster.state}${monster.hidden ? ' (hidden)' : ''} ${monster.dist.toFixed(1)}m\nthreat ${game.threat.toFixed(2)}`;
+      debugEl.textContent = `fps   ${(fpsN / fpsAcc).toFixed(0)}\ncalls ${i.calls}\ntris  ${(i.triangles / 1000).toFixed(0)}k\nres   ${renderer.getPixelRatio().toFixed(2)}x\npos   ${player.pos.x.toFixed(1)}, ${player.pos.z.toFixed(1)}\nthing ${monster.state}${monster.hidden ? ' (hidden)' : ''} ${monster.dist.toFixed(1)}m\nthreat ${game.threat.toFixed(2)}`;
       fpsAcc = fpsN = fpsT = 0;
     }
   }
@@ -82,8 +105,8 @@ requestAnimationFrame(frame);
 
 // Test hooks (harmless in play): window.__nf.teleport(x, z)
 window.__nf = {
-  game, player, input, flash, monster, wanderer, ghostMgr, wolfPack, deerHerd, owls, relics, camera, renderer, scene,
-  CFG, spot, hemi, moon, RELIC_SPOTS, CABIN, WELL, CIRCLE, BOULDERS,
+  game, player, input, flash, monster, wanderer, ghostMgr, wolfPack, deerHerd, owls, scarecrow, eyes, relics, camera, renderer, scene,
+  CFG, spot, hemi, moon, RELIC_SPOTS, CABIN, WELL, CIRCLE, BOULDERS, MEADOWS, HOLLOW, GRAVEYARD, audio: AudioSys,
   teleport(x, z, yaw) { player.pos.x = x; player.pos.z = z; player.vel.set(0, 0, 0); player.eyeY = null; if (yaw !== undefined) player.yaw = yaw; },
   counts: () => ({ pines: PINES.length, deads: DEADS.length, chunks: chunks.size }),
   // Advance the simulation by n fixed steps (for testing without rAF), then render once

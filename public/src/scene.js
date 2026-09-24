@@ -1,14 +1,15 @@
 /* Scene setup
    Renderer, fog, sky dome, and the fixed set of lights (moon, hemisphere,
    the flashlight spot — the only shadow caster — and one roaming relic light).
+   Clouds drift over the moon now and then, and the forest goes darker.
 */
 import * as THREE from 'three';
-import { CFG, mulberry32 } from './config.js';
+import { CFG, mulberry32, fbm, smoothstep } from './config.js';
 import { canvasTexture } from './geometry.js';
 
 export const canvas = document.getElementById('game');
 export const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, CFG.PIXEL_RATIO));
 renderer.setSize(innerWidth || 1280, innerHeight || 720);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
@@ -34,15 +35,15 @@ scene.add(camera);
 export const MOON_DIR = new THREE.Vector3(-0.45, 0.52, -0.73).normalize();
 export const sky = new THREE.Mesh(new THREE.SphereGeometry(400, 32, 16), new THREE.ShaderMaterial({
   side: THREE.BackSide, depthWrite: false, fog: false,
-  uniforms: { horizon: { value: new THREE.Color(CFG.FOG_COLOR) }, zenith: { value: new THREE.Color(0x070a12) }, moonDir: { value: MOON_DIR } },
+  uniforms: { horizon: { value: new THREE.Color(CFG.FOG_COLOR) }, zenith: { value: new THREE.Color(0x070a12) }, moonDir: { value: MOON_DIR }, moonVis: { value: 1 } },
   vertexShader: 'varying vec3 vDir; void main(){ vDir = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-  fragmentShader: `uniform vec3 horizon; uniform vec3 zenith; uniform vec3 moonDir; varying vec3 vDir;
+  fragmentShader: `uniform vec3 horizon; uniform vec3 zenith; uniform vec3 moonDir; uniform float moonVis; varying vec3 vDir;
     void main(){
       vec3 d = normalize(vDir);
       vec3 col = mix(horizon, zenith, smoothstep(0.0, 0.55, d.y));
       float m = max(dot(d, moonDir), 0.0);
-      col += vec3(0.16, 0.19, 0.26) * pow(m, 14.0) * 0.55;             // halo in the haze
-      col += vec3(0.92, 0.95, 1.0) * smoothstep(0.99905, 0.99935, m) * 1.3; // moon disc
+      col += vec3(0.16, 0.19, 0.26) * pow(m, 14.0) * 0.55 * (0.4 + 0.6 * moonVis);   // halo in the haze
+      col += vec3(0.92, 0.95, 1.0) * smoothstep(0.99905, 0.99935, m) * 1.3 * moonVis;  // moon disc
       gl_FragColor = vec4(col, 1.0);
       #include <tonemapping_fragment>
       #include <colorspace_fragment>
@@ -74,7 +75,7 @@ hand.position.set(0.2, -0.22, -0.05);
 camera.add(hand);
 export const spot = new THREE.SpotLight(0xfff0d8, CFG.FLASH_INTENSITY, 42, CFG.BEAM_ANGLE, 0.5, 1.35);
 spot.castShadow = true;                        // the ONLY shadow-casting light
-spot.shadow.mapSize.set(1024, 1024);
+spot.shadow.mapSize.set(CFG.SHADOW_MAP, CFG.SHADOW_MAP);
 spot.shadow.camera.near = 0.3;
 spot.shadow.camera.far = 36;
 spot.shadow.bias = -0.0006;
@@ -91,6 +92,14 @@ hand.add(spot);
 spot.position.set(0, 0, 0);
 spot.target.position.set(0, 0, -6);
 hand.add(spot.target);
+
+// Clouds: a slow noise over time dims the moon (and the sky around it) for a while
+export function updateClouds(t) {
+  const cloud = smoothstep(0.42, 0.62, fbm(t * 0.012 + 3.3, 7.1));
+  moon.intensity = 0.9 * (1 - 0.65 * cloud);
+  hemi.intensity = 1.1 * (1 - 0.3 * cloud);
+  sky.material.uniforms.moonVis.value = 1 - 0.85 * cloud;
+}
 
 // One roaming point light, parked on the nearest foxfire stone
 export const relicLight = new THREE.PointLight(0xa8f0c8, 0, 9, 2);

@@ -3,7 +3,7 @@
    or fullscreen on touch, the scripted catch and escape, and the end screens.
 */
 import { CFG, R, lerp, turnTo } from './config.js';
-import { scene, camera, renderer, canvas } from './scene.js';
+import { scene, camera, renderer, canvas, updateClouds } from './scene.js';
 import { heightAt } from './world.js';
 import { game, player, flash, input } from './state.js';
 import { updatePlayer } from './player.js';
@@ -16,6 +16,8 @@ import { owls } from './creatures/owls.js';
 import { wolfPack } from './creatures/wolves.js';
 import { ghostMgr } from './creatures/ghosts.js';
 import { wanderer } from './creatures/wanderer.js';
+import { scarecrow } from './creatures/scarecrow.js';
+import { eyes } from './creatures/eyes.js';
 import { monster } from './creatures/monster.js';
 
 export function resetGame() {
@@ -24,9 +26,9 @@ export function resetGame() {
   flash.on = true; flash.level = 1; flash.flickerT = 0; flash.monsterFlicker = false; flash.next = R(10, 20); flash.lastYaw = player.yaw; flash.lastPitch = 0;
   relics.forEach(r => { r.collected = false; r.group.visible = true; });
   game.found = 0; game.time = 0; game.threat = 0;
-  scene.fog.density = CFG.FOG_DENSITY; renderer.toneMappingExposure = 1.15;
+  scene.fog.density = CFG.FOG_DENSITY; renderer.toneMappingExposure = 1.15; updateClouds(0);
   updatePlayer(0); updateBeamVectors();
-  deerHerd.reset(); owls.forEach(o => o.reset()); wolfPack.reset(); ghostMgr.reset(); wanderer.reset(); monster.reset();
+  deerHerd.reset(); owls.forEach(o => o.reset()); wolfPack.reset(); ghostMgr.reset(); wanderer.reset(); scarecrow.reset(); eyes.reset(); monster.reset();
   UI.setStones(0); UI.clearText();
   if (AudioSys.ready) { AudioSys.muted = false; }
 }

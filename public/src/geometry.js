@@ -6,15 +6,23 @@ import { rand } from './config.js';
 
 // Geometry helpers: bake several primitives (with color + transform) into one
 // flat-shaded, vertex-colored geometry so each prop/creature part is one draw call.
+// { smooth: true } keeps each primitive's own smooth normals instead (ghosts).
 export function mat(x, y, z, rx = 0, ry = 0, rz = 0, sx = 1, sy = 1, sz = 1, order = 'XYZ') {
   return new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz, order)), new THREE.Vector3(sx, sy, sz));
 }
-export function mergeParts(parts) {
+export function mergeParts(parts, { smooth = false } = {}) {
   let n = 0;
   const geos = parts.map(p => {
-    const g = p.g.index ? p.g.toNonIndexed() : p.g.clone();
-    g.deleteAttribute('normal'); g.deleteAttribute('uv');
-    g.computeVertexNormals();
+    let g;
+    if (smooth) {
+      g = p.g.clone(); if (!g.attributes.normal) g.computeVertexNormals();
+      if (g.index) g = g.toNonIndexed();
+      g.deleteAttribute('uv');
+    } else {
+      g = p.g.index ? p.g.toNonIndexed() : p.g.clone();
+      g.deleteAttribute('normal'); g.deleteAttribute('uv');
+      g.computeVertexNormals();
+    }
     if (p.m) g.applyMatrix4(p.m);
     n += g.attributes.position.count;
     return g;
@@ -63,3 +71,45 @@ export const glowTex = canvasTexture(128, (g, s) => {
 
 // Shared vertex-colored material for everything built with mergeParts
 export const vcMat = new THREE.MeshLambertMaterial({ vertexColors: true });
+
+// Bake transformed, tinted copies of mergeParts geometries into one static mesh
+// (one draw call). items: [{ geo, m: Matrix4, tint: {r,g,b} }]. Attributes are
+// compact (Int8 normals, Uint16 colors — Uint8 bands on dark linear colors), and
+// the CPU copies are dropped once they're on the GPU. { sway: true } adds a 0..1
+// attribute (base → top of each piece) for the grass shader.
+const _nm = new THREE.Matrix3();
+function freeArray() { this.array = null; }
+export function bakeMesh(items, material, { sway = false } = {}) {
+  let n = 0;
+  for (const it of items) n += it.geo.attributes.position.count;
+  const pos = new Float32Array(n * 3), nor = new Int8Array(n * 3), col = new Uint16Array(n * 3), sw = sway ? new Uint8Array(n) : null;
+  let o = 0;
+  for (const { geo, m, tint } of items) {
+    const P = geo.attributes.position.array, N = geo.attributes.normal.array, C = geo.attributes.color.array, cnt = geo.attributes.position.count;
+    const e = m.elements, q = _nm.getNormalMatrix(m).elements;
+    if (sway && !geo.boundingBox) geo.computeBoundingBox();
+    const top = sway ? geo.boundingBox.max.y || 1 : 1;
+    for (let i = 0; i < cnt; i++, o++) {
+      const i3 = i * 3, o3 = o * 3, x = P[i3], y = P[i3 + 1], z = P[i3 + 2];
+      pos[o3] = e[0] * x + e[4] * y + e[8] * z + e[12];
+      pos[o3 + 1] = e[1] * x + e[5] * y + e[9] * z + e[13];
+      pos[o3 + 2] = e[2] * x + e[6] * y + e[10] * z + e[14];
+      const nx = N[i3], ny = N[i3 + 1], nz = N[i3 + 2];
+      const a = q[0] * nx + q[3] * ny + q[6] * nz, b = q[1] * nx + q[4] * ny + q[7] * nz, c = q[2] * nx + q[5] * ny + q[8] * nz;
+      const l = 127 / (Math.hypot(a, b, c) || 1);
+      nor[o3] = a * l; nor[o3 + 1] = b * l; nor[o3 + 2] = c * l;
+      col[o3] = Math.min(1, C[i3] * tint.r) * 65535; col[o3 + 1] = Math.min(1, C[i3 + 1] * tint.g) * 65535; col[o3 + 2] = Math.min(1, C[i3 + 2] * tint.b) * 65535;
+      if (sw) sw[o] = Math.max(0, Math.min(1, y / top)) * 255;
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('normal', new THREE.BufferAttribute(nor, 3, true));
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3, true));
+  if (sw) g.setAttribute('sway', new THREE.BufferAttribute(sw, 1, true));
+  g.computeBoundingSphere();
+  for (const a of Object.values(g.attributes)) a.onUpload(freeArray);
+  const mesh = new THREE.Mesh(g, material);
+  mesh.matrixAutoUpdate = false;
+  return mesh;
+}
