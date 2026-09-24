@@ -31,9 +31,9 @@ body{font-family:var(--serif);-webkit-font-smoothing:antialiased;-webkit-user-se
 /* HUD */
 #hud{position:fixed;inset:0;pointer-events:none;font-family:var(--mono);z-index:5}
 #stones{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:calc(20px + env(safe-area-inset-left,0px));display:flex;align-items:center;gap:14px;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--ash);text-shadow:0 0 8px #000}
-#pips{display:flex;gap:10px}
-#pips i{display:block;width:9px;height:9px;transform:rotate(45deg);border:1px solid rgba(191,233,207,.5);transition:background .6s,box-shadow .6s}
-#pips i.on{background:var(--foxfire);box-shadow:0 0 10px 2px rgba(191,233,207,.55)}
+.pips{display:flex;gap:10px}
+.pips i{display:block;width:9px;height:9px;transform:rotate(45deg);border:1px solid rgba(191,233,207,.5);transition:background .6s,box-shadow .6s}
+.pips i.on{background:var(--foxfire);box-shadow:0 0 10px 2px rgba(191,233,207,.55)}
 #stoneCount{color:var(--bone);font-variant-numeric:tabular-nums;letter-spacing:.08em}
 #stamina{position:absolute;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));width:min(220px,50vw);height:3px;transform:translateX(-50%);background:rgba(217,211,196,.13);transition:opacity .8s}
 #staminaFill{height:100%;background:var(--bone);opacity:.75;transform-origin:left center}
@@ -69,28 +69,33 @@ html:not(.touch) #touch{display:none}
 
 #debug{position:fixed;top:12px;right:12px;z-index:30;font:12px/1.45 var(--mono);color:#a8e6c4;background:rgba(0,0,0,.55);padding:6px 9px;white-space:pre;pointer-events:none}
 
-/* Menu / pause / end screens */
-.screen{position:fixed;inset:0;z-index:20;display:flex;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding-inline:clamp(16px,7vw,104px);padding-block:max(28px,env(safe-area-inset-top,0px)) max(28px,env(safe-area-inset-bottom,0px));background:linear-gradient(90deg,rgba(7,9,12,.95) 0%,rgba(7,9,12,.8) 40%,rgba(7,9,12,.3) 75%,rgba(7,9,12,.12) 100%)}
-.screen.clickable{cursor:pointer}
-.sheet{max-width:32rem;margin-block:auto;display:grid;gap:18px}   /* auto margins, not align-items, so a tall sheet can still scroll to its top */
-.eyebrow{margin:0;font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ash)}
-h1,h2{margin:0;font-family:var(--display);font-weight:400;line-height:.9;text-wrap:balance}
-h1{font-size:clamp(3.4rem,12vw,7.4rem);letter-spacing:.01em}
-h2{font-size:clamp(2.6rem,8vw,4.6rem)}
-.lede{margin:0;max-width:34em;font-size:clamp(17px,1.55vw,19px);line-height:1.52;color:var(--bone)}
+/* Menu / pause / end screens: copy on the left over a scrim, the forest (and, on the start screen, a foxfire stone) on the right */
+.screen{position:fixed;inset:0;z-index:20;display:flex;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding-inline:clamp(16px,7vw,104px);padding-block:max(28px,env(safe-area-inset-top,0px)) max(28px,env(safe-area-inset-bottom,0px));background:linear-gradient(90deg,rgba(7,9,12,.95) 0%,rgba(7,9,12,.84) 33%,rgba(7,9,12,.36) 58%,rgba(7,9,12,0) 80%)}
+.sheet{max-width:40rem;margin-block:auto;display:grid;gap:clamp(18px,2.4vh,26px)}   /* auto margins, not align-items, so a tall sheet can still scroll to its top */
+.eyebrow{margin:0;font-family:var(--mono);font-size:clamp(12px,1.05vw,15px);letter-spacing:.2em;text-transform:uppercase;color:var(--ash)}
+h1,h2{margin:0;font-family:var(--display);font-weight:400;line-height:.86;text-wrap:balance;text-shadow:0 2px 34px rgba(0,0,0,.65)}
+h1{margin-left:-.03em;font-size:clamp(3.4rem,min(13vw,23vh),10.4rem);letter-spacing:.01em}
+h2{font-size:clamp(2.6rem,min(9vw,15vh),7rem)}
+.lede{margin:0;max-width:22em;font-size:clamp(17px,1.75vw,24px);line-height:1.45;color:var(--bone)}
 .lede em{color:var(--foxfire)}
-.keys{margin:4px 0 0;display:grid;grid-template-columns:auto 1fr;gap:9px 18px;align-items:center;font-family:var(--mono);font-size:13px;color:var(--ash)}
+/* Start / Resume / Restart: a foxfire-lit button whose edge breathes */
+.btn{justify-self:start;min-width:13.75rem;margin-block:10px;padding:12px 40px 14px;font:clamp(21px,1.9vw,26px)/1 var(--display);letter-spacing:.12em;color:var(--foxfire);background:rgba(191,233,207,.06);border:1px solid rgba(191,233,207,.5);border-radius:2px;cursor:pointer;animation:beacon 2.8s ease-in-out infinite;transition:background .3s,color .3s,border-color .3s}
+@media (hover:hover){.btn:hover{background:rgba(191,233,207,.14);color:#e9fff2;border-color:var(--foxfire)}}   /* hover only where it exists: iOS can swallow a tap that changes things on hover */
+.btn:active{background:rgba(191,233,207,.2)}
+.btn:focus-visible{outline:1px solid var(--foxfire);outline-offset:5px}
+@keyframes beacon{0%,100%{border-color:rgba(191,233,207,.34);box-shadow:0 0 12px rgba(191,233,207,.06)}50%{border-color:rgba(191,233,207,.72);box-shadow:0 0 30px rgba(191,233,207,.22)}}
+.keys{margin:4px 0 0;display:grid;grid-template-columns:repeat(2,auto);justify-content:start;gap:12px 40px;font-family:var(--mono);font-size:13px;color:var(--ash)}
+.keys div{display:flex;align-items:center;gap:10px}
 .keys dt{display:flex;gap:4px}
 .keys dd{margin:0;letter-spacing:.05em}
-kbd{min-width:1.9em;padding:3px 6px 2px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--bone);border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;background:rgba(217,211,196,.05)}
+kbd{white-space:nowrap;min-width:1.9em;padding:3px 6px 2px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--bone);border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;background:rgba(217,211,196,.05)}
 kbd.icon{padding:2px 5px}
 kbd.icon svg{width:16px;height:16px}
-.cta{justify-self:start;margin-top:6px;padding:4px 0 6px;font-family:var(--display);font-size:23px;letter-spacing:.08em;color:var(--foxfire);background:none;border:0;border-bottom:1px solid rgba(191,233,207,.42);cursor:pointer;animation:breathe 2.8s ease-in-out infinite}
-.touch .cta{min-height:44px}
-.cta:hover{border-bottom-color:var(--foxfire)}
-.cta:focus-visible{outline:1px solid var(--foxfire);outline-offset:6px}
-@keyframes breathe{0%,100%{opacity:.55}50%{opacity:1}}
-.note{margin:0;font-family:var(--mono);font-size:12px;letter-spacing:.05em;color:var(--ash)}
+.note{margin:-8px 0 0;font-family:var(--mono);font-size:12px;letter-spacing:.05em;color:#646b66}
+/* Pause: how the night is going */
+.tally{margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;font-family:var(--mono);font-size:clamp(13px,1.05vw,15px);letter-spacing:.16em;text-transform:uppercase;color:var(--ash)}
+.tally .pips{gap:12px}
+.tally b{font-weight:400;color:var(--bone);letter-spacing:.08em;font-variant-numeric:tabular-nums}
 .stats{margin:0;display:flex;flex-wrap:wrap;gap:12px 36px}
 .stats div{display:grid;gap:4px}
 .stats dt{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ash)}
@@ -99,15 +104,22 @@ kbd.icon svg{width:16px;height:16px}
 #end.win h1{color:var(--foxfire)}
 #start h1{animation:flicker 4.5s linear 1}
 @keyframes flicker{0%{opacity:0}6%{opacity:1}7%{opacity:.25}9%{opacity:1}52%{opacity:1}53%{opacity:.45}54%{opacity:1}100%{opacity:1}}
-@media (max-width:640px){.sheet{margin-block:auto 0}.screen{background:linear-gradient(0deg,rgba(7,9,12,.96) 0%,rgba(7,9,12,.85) 60%,rgba(7,9,12,.4) 100%)}}
+/* Portrait phones: copy along the bottom, the stone above it */
+@media (max-width:640px){
+  .sheet{margin-block:auto 0}
+  .screen{background:linear-gradient(0deg,rgba(7,9,12,.96) 0%,rgba(7,9,12,.88) 55%,rgba(7,9,12,.5) 66%,rgba(7,9,12,0) 80%)}
+  .keys{grid-template-columns:auto;gap:10px}
+  .btn{justify-self:stretch;margin-block:4px}
+}
 /* Phones held sideways: fit the start screen in one short view */
 @media (orientation:landscape) and (max-height:540px){
   .screen{padding-block:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-bottom,0px))}
   .sheet{max-width:46rem;gap:10px}
   h1{font-size:clamp(2.6rem,14vh,4.4rem)}
   h2{font-size:clamp(2.2rem,11vh,3.4rem)}
-  .lede{font-size:15px;line-height:1.42}
-  .keys{grid-template-columns:auto auto auto 1fr;gap:7px 14px;font-size:12px}
-  .cta{margin-top:0}
+  .lede{max-width:34em;font-size:15px;line-height:1.42}
+  .keys{gap:7px 28px;font-size:12px}
+  .btn{min-width:0;margin-block:2px;padding:9px 30px 11px;font-size:20px}
+  .note{margin-top:0}
 }
-@media (prefers-reduced-motion:reduce){#grain,.cta,#start h1{animation:none}}
+@media (prefers-reduced-motion:reduce){#grain,.btn,#start h1{animation:none}}
