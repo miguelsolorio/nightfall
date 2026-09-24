@@ -6,6 +6,12 @@ A first-person horror game set in a foggy forest at night. Find five glowing fox
 
 ![The title Nightfall beside a moonlit pine forest in fog, where a green foxfire stone glows among the trees](public/media/og.jpg)
 
+## Demo
+
+<a href="docs/demo.mp4"><img src="docs/demo.webp" width="800" alt="A 30-second tour of Nightfall: the title screen, taking a foxfire stone from the altar in the stone circle, wolves backing away from the flashlight, a ghost dissolving in the beam, and the tall one at the edge of the light by the cabin, then right behind you"></a>
+
+A 30-second tour recorded in the game, with the encounters staged for the camera. [Watch it as a video](docs/demo.mp4) for full quality.
+
 ## How to play
 
 Your car died at the trailhead. Somewhere in the woods, five **foxfire stones** still glow. Collect all five and the way out opens. Look for their glow through the fog, and listen for the hum when you're close.
