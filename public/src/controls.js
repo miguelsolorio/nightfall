@@ -18,7 +18,7 @@ document.addEventListener('mousemove', e => {
 });
 canvas.addEventListener('mousedown', () => {
   input.dragging = true;
-  if (game.state === 'playing' && document.pointerLockElement !== canvas) lockPointer();   // switched from touch to a mouse mid-game
+  if (game.state === 'playing' && !input.touch && document.pointerLockElement !== canvas) lockPointer();   // switched from touch to a mouse mid-game
 });
 addEventListener('mouseup', () => { input.dragging = false; });
 addEventListener('keydown', e => {

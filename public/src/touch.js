@@ -20,7 +20,15 @@ const looks = new Map();   // pointerId → last position
 
 function setTouch(on) { input.touch = on; document.documentElement.classList.toggle('touch', on); }
 setTouch(document.documentElement.classList.contains('touch'));   // first guess is made in index.html
-addEventListener('pointerdown', e => setTouch(e.pointerType !== 'mouse'), true);
+// A tap can be followed by compatibility mouse events, and some mobile browsers report those as a
+// mouse pointer. Flipping to desktop mode then swaps the screen's text mid-tap, and iOS reads that
+// as a hover and cancels the click. So only a real mouse, well after the last touch, switches back.
+const hasMouse = matchMedia('(any-pointer: fine)');
+let lastTouch = -Infinity;
+addEventListener('pointerdown', e => {
+  if (e.pointerType !== 'mouse') { lastTouch = e.timeStamp; setTouch(true); }
+  else if (hasMouse.matches && e.timeStamp - lastTouch > 1000) setTouch(false);
+}, true);
 
 function releaseStick() {
   stickId = null; input.moveX = input.moveY = 0; input.moveRun = false;
