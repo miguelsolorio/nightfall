@@ -10,7 +10,7 @@ import { updatePlayer } from './player.js';
 import { updateFlashlight, updateBeamVectors } from './flashlight.js';
 import { AudioSys } from './audio.js';
 import { UI, $ } from './ui.js';
-import { relics } from './relics.js';
+import { relics, menuRelic } from './relics.js';
 import { deerHerd } from './creatures/deer.js';
 import { owls } from './creatures/owls.js';
 import { wolfPack } from './creatures/wolves.js';
@@ -25,6 +25,7 @@ export function resetGame() {
   player.stamina = 1; player.exhausted = false; player.shake = 0; player.bob = 0;
   flash.on = true; flash.level = 1; flash.flickerT = 0; flash.monsterFlicker = false; flash.next = R(10, 20); flash.lastYaw = player.yaw; flash.lastPitch = 0;
   relics.forEach(r => { r.collected = false; r.group.visible = true; });
+  menuRelic.group.visible = false;
   game.found = 0; game.time = 0; game.threat = 0;
   scene.fog.density = CFG.FOG_DENSITY; renderer.toneMappingExposure = 1.15; updateClouds(0);
   updatePlayer(0); updateBeamVectors();
@@ -92,9 +93,9 @@ export function startGame() {
   game.state = 'playing'; UI.show(null); UI.hud.hidden = false;
   takeControl();
 }
-export function pauseGame() { if (game.state !== 'playing') return; game.state = 'paused'; UI.show(UI.pause); AudioSys.suspend(); for (const k in input.keys) delete input.keys[k]; input.moveX = input.moveY = 0; input.moveRun = false; }
+export function pauseGame() { if (game.state !== 'playing') return; game.state = 'paused'; UI.showPause(); AudioSys.suspend(); for (const k in input.keys) delete input.keys[k]; input.moveX = input.moveY = 0; input.moveRun = false; }
 export function resumeGame() { if (game.state !== 'paused') return; game.state = 'playing'; UI.show(null); AudioSys.resume(); takeControl(); }
-UI.start.addEventListener('click', startGame);
-UI.pause.addEventListener('click', resumeGame);
+$('begin').addEventListener('click', startGame);
+$('resume').addEventListener('click', resumeGame);
 $('restart').addEventListener('click', startGame);
 document.addEventListener('visibilitychange', () => { if (document.hidden) pauseGame(); });

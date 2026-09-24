@@ -10,7 +10,7 @@ import { updatePlayer } from './player.js';
 import { updateFlashlight, updateBeamVectors } from './flashlight.js';
 import { AudioSys } from './audio.js';
 import { UI, $ } from './ui.js';
-import { relics, updateRelics, RELIC_SPOTS } from './relics.js';
+import { relics, updateRelics, RELIC_SPOTS, menuRelic, placeMenuRelic, updateMenuRelic } from './relics.js';
 import { deerHerd } from './creatures/deer.js';
 import { owls } from './creatures/owls.js';
 import { wolfPack } from './creatures/wolves.js';
@@ -54,9 +54,17 @@ function step(dt) {
   UI.light(flash.on);
   UI.setThreat(game.threat);
 }
-function attract(dt) {   // slow look around the clearing behind the title screen
-  player.yaw += dt * 0.04;
-  updatePlayer(0); updateFlashlight(dt, 0); updateBeamVectors(); updateRelics(dt);
+// Behind the title screen: a still shot across the clearing toward the moon, drifting a little,
+// with a foxfire stone hung beside the copy. The stone is placed from the resting pose, and again
+// whenever the window changes shape.
+const MENU = { yaw: 1.2, pitch: 0.13 };
+let placeStone = true;
+addEventListener('resize', () => { placeStone = true; });
+function attract(dt) {
+  if (placeStone) { player.yaw = MENU.yaw; player.pitch = MENU.pitch; updatePlayer(0); placeMenuRelic(); placeStone = false; }
+  player.yaw = MENU.yaw + Math.sin(game.t * 0.11) * 0.025;
+  player.pitch = MENU.pitch + Math.sin(game.t * 0.07) * 0.012;
+  updatePlayer(0); updateFlashlight(dt, 0); updateBeamVectors(); updateRelics(dt); updateMenuRelic(dt);
 }
 
 // Adaptive resolution: if frames run long during play, render fewer pixels
@@ -105,7 +113,7 @@ requestAnimationFrame(frame);
 
 // Test hooks (harmless in play): window.__nf.teleport(x, z)
 window.__nf = {
-  game, player, input, flash, monster, wanderer, ghostMgr, wolfPack, deerHerd, owls, scarecrow, eyes, relics, camera, renderer, scene,
+  game, player, input, flash, monster, wanderer, ghostMgr, wolfPack, deerHerd, owls, scarecrow, eyes, relics, menuRelic, MENU, camera, renderer, scene,
   CFG, spot, hemi, moon, RELIC_SPOTS, CABIN, WELL, CIRCLE, BOULDERS, MEADOWS, HOLLOW, GRAVEYARD, audio: AudioSys,
   teleport(x, z, yaw) { player.pos.x = x; player.pos.z = z; player.vel.set(0, 0, 0); player.eyeY = null; if (yaw !== undefined) player.yaw = yaw; },
   counts: () => ({ pines: PINES.length, deads: DEADS.length, chunks: chunks.size }),
