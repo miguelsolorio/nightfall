@@ -5,7 +5,7 @@
 import { CFG, DEBUG, clamp, lerp } from './config.js';
 import { renderer, scene, camera, sky, spot, hemi, moon } from './scene.js';
 import { updateCulling, updateMist, PINES, DEADS, chunks, CABIN, WELL, CIRCLE, BOULDERS } from './world.js';
-import { game, player, flash } from './state.js';
+import { game, player, input, flash } from './state.js';
 import { updatePlayer } from './player.js';
 import { updateFlashlight, updateBeamVectors } from './flashlight.js';
 import { AudioSys } from './audio.js';
@@ -19,6 +19,7 @@ import { wanderer } from './creatures/wanderer.js';
 import { monster } from './creatures/monster.js';
 import { resetGame, stepCinematic } from './game.js';
 import './controls.js';
+import './touch.js';
 
 function step(dt) {
   game.time += dt;
@@ -42,6 +43,7 @@ function step(dt) {
   if (Number.isFinite(threat)) game.threat = lerp(game.threat, threat, 1 - Math.exp(-dt * 2));
   AudioSys.update(dt, game.threat);
   UI.stamina(player.stamina, player.exhausted);
+  UI.light(flash.on);
   UI.setThreat(game.threat);
 }
 function attract(dt) {   // slow look around the clearing behind the title screen
@@ -80,7 +82,7 @@ requestAnimationFrame(frame);
 
 // Test hooks (harmless in play): window.__nf.teleport(x, z)
 window.__nf = {
-  game, player, flash, monster, wanderer, ghostMgr, wolfPack, deerHerd, owls, relics, camera, renderer, scene,
+  game, player, input, flash, monster, wanderer, ghostMgr, wolfPack, deerHerd, owls, relics, camera, renderer, scene,
   CFG, spot, hemi, moon, RELIC_SPOTS, CABIN, WELL, CIRCLE, BOULDERS,
   teleport(x, z, yaw) { player.pos.x = x; player.pos.z = z; player.vel.set(0, 0, 0); player.eyeY = null; if (yaw !== undefined) player.yaw = yaw; },
   counts: () => ({ pines: PINES.length, deads: DEADS.length, chunks: chunks.size }),

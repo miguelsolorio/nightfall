@@ -4,7 +4,8 @@
 import * as THREE from 'three';
 import { R } from './config.js';
 
-export const input = { keys: {}, dragLook: false, dragging: false, hadLock: false };
+// move*: the touch stick (x right, y forward, -1..1). touch: on-screen controls are in use.
+export const input = { keys: {}, dragLook: false, dragging: false, hadLock: false, touch: false, moveX: 0, moveY: 0, moveRun: false };
 export const player = {
   pos: new THREE.Vector3(0, 0, 3), vel: new THREE.Vector3(), yaw: 0, pitch: 0, eyeY: null,
   stamina: 1, exhausted: false, runLock: 0, running: false, speed: 0,

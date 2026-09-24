@@ -1,6 +1,6 @@
 /* Game flow
-   Reset, start / pause / resume, pointer lock (with drag-to-look fallback),
-   the scripted catch and escape, and the end screens.
+   Reset, start / pause / resume, pointer lock (with drag-to-look fallback)
+   or fullscreen on touch, the scripted catch and escape, and the end screens.
 */
 import { CFG, R, lerp, turnTo } from './config.js';
 import { scene, camera, renderer, canvas } from './scene.js';
@@ -76,14 +76,22 @@ document.addEventListener('pointerlockchange', () => {
 });
 document.addEventListener('pointerlockerror', onLockError);
 
+// Touch has no pointer to lock: go fullscreen instead (and sideways, where the browser allows)
+function takeControl() {
+  if (!input.touch) return lockPointer();
+  const el = document.documentElement;
+  if (!document.fullscreenElement && el.requestFullscreen) el.requestFullscreen({ navigationUI: 'hide' }).then(() => screen.orientation?.lock?.('landscape')).catch(() => {});
+}
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && input.touch) pauseGame(); });
+
 export function startGame() {
   AudioSys.init(); AudioSys.resume();
   resetGame();
   game.state = 'playing'; UI.show(null); UI.hud.hidden = false;
-  lockPointer();
+  takeControl();
 }
-export function pauseGame() { if (game.state !== 'playing') return; game.state = 'paused'; UI.show(UI.pause); AudioSys.suspend(); for (const k in input.keys) delete input.keys[k]; }
-export function resumeGame() { if (game.state !== 'paused') return; game.state = 'playing'; UI.show(null); AudioSys.resume(); lockPointer(); }
+export function pauseGame() { if (game.state !== 'playing') return; game.state = 'paused'; UI.show(UI.pause); AudioSys.suspend(); for (const k in input.keys) delete input.keys[k]; input.moveX = input.moveY = 0; input.moveRun = false; }
+export function resumeGame() { if (game.state !== 'paused') return; game.state = 'playing'; UI.show(null); AudioSys.resume(); takeControl(); }
 UI.start.addEventListener('click', startGame);
 UI.pause.addEventListener('click', resumeGame);
 $('restart').addEventListener('click', startGame);

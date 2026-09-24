@@ -1,8 +1,9 @@
 /* Player
-   WASD movement with acceleration, stamina and running, collision,
-   world bounds, head bob and footsteps. Look input lives in controls.js.
+   WASD / touch-stick movement with acceleration, stamina and running,
+   collision, world bounds, head bob and footsteps. Look input lives in
+   controls.js and touch.js.
 */
-import { CFG, lerp, R } from './config.js';
+import { CFG, clamp, lerp, R } from './config.js';
 import { camera } from './scene.js';
 import { resolveCollision, groundAt } from './world.js';
 import { player, input, blockers } from './state.js';
@@ -11,15 +12,15 @@ import { UI } from './ui.js';
 
 export function updatePlayer(dt) {
   const k = input.keys;
-  const f = (k.KeyW || k.ArrowUp ? 1 : 0) - (k.KeyS || k.ArrowDown ? 1 : 0);
-  const s = (k.KeyD || k.ArrowRight ? 1 : 0) - (k.KeyA || k.ArrowLeft ? 1 : 0);
+  const f = clamp((k.KeyW || k.ArrowUp ? 1 : 0) - (k.KeyS || k.ArrowDown ? 1 : 0) + input.moveY, -1, 1);
+  const s = clamp((k.KeyD || k.ArrowRight ? 1 : 0) - (k.KeyA || k.ArrowLeft ? 1 : 0) + input.moveX, -1, 1);
   const sy = Math.sin(player.yaw), cy = Math.cos(player.yaw);
   let wx = -sy * f + cy * s, wz = -cy * f - sy * s;
-  const len = Math.hypot(wx, wz), moving = len > 0;
+  const len = Math.hypot(wx, wz), moving = len > 0, throttle = Math.min(1, len);   // the stick can walk slower
   if (moving) { wx /= len; wz /= len; }
 
   // Stamina: drains while running; once exhausted you must recover to 35%
-  const wantRun = (k.ShiftLeft || k.ShiftRight) && moving && !player.exhausted && player.stamina > 0;
+  const wantRun = (k.ShiftLeft || k.ShiftRight || input.moveRun) && moving && !player.exhausted && player.stamina > 0;
   player.running = wantRun;
   if (wantRun) {
     player.stamina = Math.max(0, player.stamina - dt / 6.5); player.runLock = 0.9;
@@ -31,7 +32,7 @@ export function updatePlayer(dt) {
   }
   if (player.exhausted) { player.breathT -= dt; if (player.breathT <= 0) { AudioSys.breath(); player.breathT = 1.4; } }
 
-  const target = moving ? (wantRun ? CFG.RUN : CFG.WALK) : 0, a = 1 - Math.exp(-dt * (moving ? 9 : 12));
+  const target = moving ? (wantRun ? CFG.RUN : CFG.WALK * throttle) : 0, a = 1 - Math.exp(-dt * (moving ? 9 : 12));
   player.vel.x += (wx * target - player.vel.x) * a;
   player.vel.z += (wz * target - player.vel.z) * a;
 
@@ -55,7 +56,7 @@ export function updatePlayer(dt) {
   // Head bob drives footsteps
   const amt = Math.min(1, player.speed / CFG.WALK);
   if (player.speed > 0.4) {
-    player.bob += dt * (player.running ? 11.5 : 7.8);
+    player.bob += dt * (player.running ? 11.5 : 7.8 * (0.5 + 0.5 * amt));
     const step = Math.floor(player.bob / Math.PI);
     if (step !== player.lastStep) { player.lastStep = step; AudioSys.step(player.running); }
   }

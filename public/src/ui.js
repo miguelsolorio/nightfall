@@ -1,5 +1,5 @@
 /* UI
-   HUD (foxfire pips, stamina, subtitles, messages), screen flashes,
+   HUD (foxfire pips, stamina, subtitles, messages, flashlight button), screen flashes,
    the threat vignette, and the start / pause / end screens.
 */
 import { game } from './state.js';
@@ -29,6 +29,7 @@ export const UI = {
     const el = $('flash'); el.style.transition = 'none'; el.style.background = color; el.style.opacity = peak;
     void el.offsetWidth; el.style.transition = `opacity ${dur}s ease-out`; el.style.opacity = 0;
   },
+  light(on) { if (on !== this._light) { this._light = on; $('lightBtn').setAttribute('aria-pressed', on); } },
   setThreat(t) { document.documentElement.style.setProperty('--threat', t.toFixed(3)); },
   showEnd(win) {
     const mins = 134 + Math.floor(game.time / 12), hh = Math.floor(mins / 60), mm = String(mins % 60).padStart(2, '0');
@@ -50,4 +51,3 @@ export const UI = {
   for (let i = 0; i < img.data.length; i += 4) { const v = Math.random() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = Math.random() * 110; }
   g.putImageData(img, 0, 0); $('grain').style.backgroundImage = `url(${c.toDataURL()})`;
 }
-if (matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches) $('touchNote').hidden = false;

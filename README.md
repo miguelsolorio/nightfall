@@ -10,13 +10,15 @@ A first-person horror game set in a foggy forest at night. Find five glowing fox
 
 Your car died at the trailhead. Somewhere in the woods, five **foxfire stones** still glow. Collect all five and the way out opens. Look for their glow through the fog, and listen for the hum when you're close.
 
-| Key | Action |
-| --- | --- |
-| <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> | Walk |
-| Mouse | Look around (click to capture the mouse) |
-| <kbd>Shift</kbd> | Run |
-| <kbd>F</kbd> | Flashlight on / off |
-| <kbd>Esc</kbd> | Pause |
+| Keyboard and mouse | Touch | Action |
+| --- | --- | --- |
+| <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> | Drag on the left side | Walk |
+| Mouse (click to capture it) | Drag on the right side | Look around |
+| <kbd>Shift</kbd> | Push the stick past its ring | Run |
+| <kbd>F</kbd> | Flashlight button | Flashlight on / off |
+| <kbd>Esc</kbd> | Pause button | Pause |
+
+On phones and tablets the game goes fullscreen where the browser allows it. It's best played sideways.
 
 - **Stamina.** Running drains your breath (the bar at the bottom of the screen). Run it dry and you're stuck walking until you recover.
 - **Flashlight.** It's your main light, and it flickers sometimes, more often when something is near. Many things in the forest react to it.
@@ -78,6 +80,7 @@ public/
     main.js           frame loop and wiring
     world.js          terrain, instanced forest, landmarks, collision
     player.js         movement, stamina, footsteps
+    touch.js          on-screen stick and buttons for phones and tablets
     flashlight.js     beam, flicker, and "is this lit?" checks
     audio.js          all sound, synthesized with the Web Audio API
     relics.js         the foxfire stones

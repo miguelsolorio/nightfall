@@ -19,8 +19,15 @@ export const scene = new THREE.Scene();
 scene.background = new THREE.Color(CFG.FOG_COLOR);
 scene.fog = new THREE.FogExp2(CFG.FOG_COLOR, CFG.FOG_DENSITY);
 
-export const camera = new THREE.PerspectiveCamera(70, (innerWidth / innerHeight) || 16 / 9, 0.08, 450);
+export const camera = new THREE.PerspectiveCamera(70, 16 / 9, 0.08, 450);
 camera.rotation.order = 'YXZ';
+// Vertical FOV is 70°; on a portrait phone, widen it (up to 90°) so the view isn't a slit
+function fitCamera(w, h) {
+  camera.aspect = w / h;
+  camera.fov = camera.aspect >= 1 ? 70 : Math.min(90, 2 * THREE.MathUtils.radToDeg(Math.atan(Math.tan(THREE.MathUtils.degToRad(35)) / camera.aspect)));
+  camera.updateProjectionMatrix();
+}
+if (innerWidth && innerHeight) fitCamera(innerWidth, innerHeight);
 scene.add(camera);
 
 // Sky dome: gradient that meets the fog at the horizon, a hazy moon and faint stars
@@ -95,5 +102,5 @@ export function inFrustum(p, margin = 1.08) { _proj.copy(p).project(camera); ret
 
 addEventListener('resize', () => {
   if (!innerWidth || !innerHeight) return;   // hidden/collapsed frames report 0×0 — keep the last good size
-  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight);
+  fitCamera(innerWidth, innerHeight); renderer.setSize(innerWidth, innerHeight);
 });

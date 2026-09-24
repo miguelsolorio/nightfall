@@ -10,6 +10,8 @@
 <link rel="icon" href="media/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
+<!-- Show touch controls from the first paint on phones and tablets; touch.js keeps this in sync after that -->
+<script>if (matchMedia('(pointer: coarse)').matches) document.documentElement.classList.add('touch');</script>
 <!-- Share previews. The og:image host is stamped in at deploy (see .github/workflows/pages.yml). -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nightfall">
@@ -39,6 +41,11 @@
   <div id="message"></div>
   <div id="subtitle"></div>
   <div id="stamina"><div id="staminaFill"></div></div>
+  <div id="touch">
+    <div id="stick" aria-hidden="true"><i id="knob"></i></div>
+    <button id="lightBtn" class="tbtn" type="button" aria-label="Flashlight" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h7l4-3v10l-4-3H3z"/><path class="beam" d="M17 9l4-2M17.5 12h4M17 15l4 2"/></svg></button>
+    <button id="pauseBtn" class="tbtn" type="button" aria-label="Pause"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12"/></svg></button>
+  </div>
 </div>
 <div id="debug" hidden></div>
 
@@ -47,16 +54,22 @@
     <p class="eyebrow">Hollow Pines State Forest · 2:14 a.m.</p>
     <h1 id="title">Nightfall</h1>
     <p class="lede">Your car died at the trailhead hours ago. Somewhere in these woods, five <em>foxfire stones</em> still glow. Gather them and the way out will open. Keep your light on. Don't look away for long.</p>
-    <dl class="keys">
+    <dl class="keys desk-only">
       <div style="display:contents"><dt><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></dt><dd>Walk</dd></div>
       <div style="display:contents"><dt><kbd>Mouse</kbd></dt><dd>Look around</dd></div>
       <div style="display:contents"><dt><kbd>Shift</kbd></dt><dd>Run while you have breath</dd></div>
       <div style="display:contents"><dt><kbd>F</kbd></dt><dd>Flashlight on / off</dd></div>
       <div style="display:contents"><dt><kbd>Esc</kbd></dt><dd>Pause</dd></div>
     </dl>
-    <button id="begin" class="cta" type="button">Click to begin</button>
-    <p class="note" id="touchNote" hidden>This one needs a keyboard and mouse.</p>
-    <p class="note">Headphones recommended.</p>
+    <dl class="keys touch-only">
+      <div style="display:contents"><dt><kbd>Left thumb</kbd></dt><dd>Walk</dd></div>
+      <div style="display:contents"><dt><kbd>Push past ring</kbd></dt><dd>Run while you have breath</dd></div>
+      <div style="display:contents"><dt><kbd>Right thumb</kbd></dt><dd>Look around</dd></div>
+      <div style="display:contents"><dt><kbd class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h7l4-3v10l-4-3H3z"/><path class="beam" d="M17 9l4-2M17.5 12h4M17 15l4 2"/></svg></kbd></dt><dd>Flashlight on / off</dd></div>
+      <div style="display:contents"><dt><kbd class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12"/></svg></kbd></dt><dd>Pause</dd></div>
+    </dl>
+    <button id="begin" class="cta" type="button"><span class="desk-only">Click</span><span class="touch-only">Tap</span> to begin</button>
+    <p class="note"><span class="touch-only">Best played sideways. </span>Headphones recommended.</p>
   </div>
 </section>
 
@@ -64,7 +77,7 @@
   <div class="sheet">
     <p class="eyebrow">Paused</p>
     <h2 id="pauseTitle">The forest waits.</h2>
-    <button id="resume" class="cta" type="button">Click to resume</button>
+    <button id="resume" class="cta" type="button"><span class="desk-only">Click</span><span class="touch-only">Tap</span> to resume</button>
   </div>
 </section>
 

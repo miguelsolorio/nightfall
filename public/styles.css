@@ -14,8 +14,10 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{height:100%;margin:0;background:var(--ink);color:var(--bone);overflow:hidden}
-body{font-family:var(--serif);-webkit-font-smoothing:antialiased}
+html,body{height:100%;margin:0;background:var(--ink);color:var(--bone);overflow:hidden;overscroll-behavior:none;touch-action:none}
+body{font-family:var(--serif);-webkit-font-smoothing:antialiased;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+/* The root gets .touch while the on-screen controls are in use (index.html, touch.js) */
+.touch .desk-only,html:not(.touch) .touch-only{display:none!important}
 #game{position:fixed;inset:0;width:100%;height:100%;display:block}
 
 /* Post-process overlays (cheap CSS instead of shader passes) */
@@ -28,7 +30,7 @@ body{font-family:var(--serif);-webkit-font-smoothing:antialiased}
 
 /* HUD */
 #hud{position:fixed;inset:0;pointer-events:none;font-family:var(--mono);z-index:5}
-#stones{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:20px;display:flex;align-items:center;gap:14px;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--ash);text-shadow:0 0 8px #000}
+#stones{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:calc(20px + env(safe-area-inset-left,0px));display:flex;align-items:center;gap:14px;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--ash);text-shadow:0 0 8px #000}
 #pips{display:flex;gap:10px}
 #pips i{display:block;width:9px;height:9px;transform:rotate(45deg);border:1px solid rgba(191,233,207,.5);transition:background .6s,box-shadow .6s}
 #pips i.on{background:var(--foxfire);box-shadow:0 0 10px 2px rgba(191,233,207,.55)}
@@ -40,12 +42,37 @@ body{font-family:var(--serif);-webkit-font-smoothing:antialiased}
 #subtitle.on{opacity:1}
 #message{position:absolute;left:50%;top:21%;transform:translateX(-50%);width:min(36rem,calc(100% - 32px));text-align:center;font-family:var(--display);font-size:clamp(18px,2.3vw,26px);letter-spacing:.05em;color:var(--bone);text-shadow:0 0 18px #000,0 0 4px #000;opacity:0;transition:opacity .9s}
 #message.on{opacity:.92}
+
+/* Touch controls: move stick (drag past the dashed ring to run), flashlight, pause */
+#touch{position:absolute;inset:0;pointer-events:auto;touch-action:none}
+html:not(.touch) #touch{display:none}
+#stick{position:absolute;left:calc(88px + env(safe-area-inset-left,0px));top:calc(100% - 88px - env(safe-area-inset-bottom,0px));width:96px;height:96px;margin:-48px 0 0 -48px;border:1px solid var(--line);border-radius:50%;background:rgba(7,9,12,.28);opacity:.45;transition:opacity .4s}
+#stick::before{content:"";position:absolute;inset:-20px;border:1px dashed rgba(217,211,196,.18);border-radius:50%}
+#stick.on{opacity:1;transition:none}
+#knob{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:rgba(217,211,196,.3);box-shadow:0 0 0 1px rgba(217,211,196,.35)}
+#stick.run::before{border-style:solid;border-color:rgba(191,233,207,.55)}
+#stick.run #knob{background:rgba(191,233,207,.6);box-shadow:0 0 16px 2px rgba(191,233,207,.45)}
+.tbtn{position:absolute;display:grid;place-items:center;padding:0;color:var(--bone);background:rgba(7,9,12,.35);border:1px solid var(--line);border-radius:50%}
+.tbtn svg{width:26px;height:26px}
+.tbtn svg,kbd.icon svg{display:block;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+#lightBtn{right:calc(28px + env(safe-area-inset-right,0px));bottom:calc(28px + env(safe-area-inset-bottom,0px));width:64px;height:64px;transition:color .2s,background .2s}
+#lightBtn[aria-pressed=true]{background:rgba(255,240,216,.1)}
+#lightBtn[aria-pressed=false]{color:var(--ash)}
+#lightBtn[aria-pressed=false] .beam{opacity:0}
+#pauseBtn{top:calc(6px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px));width:44px;height:44px;background:none;border:0;color:var(--ash)}
+/* Keep HUD text clear of the thumbs */
+.touch #subtitle{width:min(40rem,calc(100% - 320px))}
+@media (orientation:portrait){
+  .touch #subtitle{bottom:calc(196px + env(safe-area-inset-bottom,0px));width:calc(100% - 32px)}
+  .touch #stamina{bottom:calc(176px + env(safe-area-inset-bottom,0px))}
+}
+
 #debug{position:fixed;top:12px;right:12px;z-index:30;font:12px/1.45 var(--mono);color:#a8e6c4;background:rgba(0,0,0,.55);padding:6px 9px;white-space:pre;pointer-events:none}
 
 /* Menu / pause / end screens */
-.screen{position:fixed;inset:0;z-index:20;display:flex;align-items:center;overflow-y:auto;padding-inline:clamp(16px,7vw,104px);padding-block:max(28px,env(safe-area-inset-top,0px)) max(28px,env(safe-area-inset-bottom,0px));background:linear-gradient(90deg,rgba(7,9,12,.95) 0%,rgba(7,9,12,.8) 40%,rgba(7,9,12,.3) 75%,rgba(7,9,12,.12) 100%)}
+.screen{position:fixed;inset:0;z-index:20;display:flex;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding-inline:clamp(16px,7vw,104px);padding-block:max(28px,env(safe-area-inset-top,0px)) max(28px,env(safe-area-inset-bottom,0px));background:linear-gradient(90deg,rgba(7,9,12,.95) 0%,rgba(7,9,12,.8) 40%,rgba(7,9,12,.3) 75%,rgba(7,9,12,.12) 100%)}
 .screen.clickable{cursor:pointer}
-.sheet{max-width:32rem;display:grid;gap:18px}
+.sheet{max-width:32rem;margin-block:auto;display:grid;gap:18px}   /* auto margins, not align-items, so a tall sheet can still scroll to its top */
 .eyebrow{margin:0;font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ash)}
 h1,h2{margin:0;font-family:var(--display);font-weight:400;line-height:.9;text-wrap:balance}
 h1{font-size:clamp(3.4rem,12vw,7.4rem);letter-spacing:.01em}
@@ -56,7 +83,10 @@ h2{font-size:clamp(2.6rem,8vw,4.6rem)}
 .keys dt{display:flex;gap:4px}
 .keys dd{margin:0;letter-spacing:.05em}
 kbd{min-width:1.9em;padding:3px 6px 2px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--bone);border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;background:rgba(217,211,196,.05)}
+kbd.icon{padding:2px 5px}
+kbd.icon svg{width:16px;height:16px}
 .cta{justify-self:start;margin-top:6px;padding:4px 0 6px;font-family:var(--display);font-size:23px;letter-spacing:.08em;color:var(--foxfire);background:none;border:0;border-bottom:1px solid rgba(191,233,207,.42);cursor:pointer;animation:breathe 2.8s ease-in-out infinite}
+.touch .cta{min-height:44px}
 .cta:hover{border-bottom-color:var(--foxfire)}
 .cta:focus-visible{outline:1px solid var(--foxfire);outline-offset:6px}
 @keyframes breathe{0%,100%{opacity:.55}50%{opacity:1}}
@@ -69,5 +99,15 @@ kbd{min-width:1.9em;padding:3px 6px 2px;text-align:center;font-family:var(--mono
 #end.win h1{color:var(--foxfire)}
 #start h1{animation:flicker 4.5s linear 1}
 @keyframes flicker{0%{opacity:0}6%{opacity:1}7%{opacity:.25}9%{opacity:1}52%{opacity:1}53%{opacity:.45}54%{opacity:1}100%{opacity:1}}
-@media (max-width:640px){.screen{align-items:flex-end;background:linear-gradient(0deg,rgba(7,9,12,.96) 0%,rgba(7,9,12,.85) 60%,rgba(7,9,12,.4) 100%)}}
+@media (max-width:640px){.sheet{margin-block:auto 0}.screen{background:linear-gradient(0deg,rgba(7,9,12,.96) 0%,rgba(7,9,12,.85) 60%,rgba(7,9,12,.4) 100%)}}
+/* Phones held sideways: fit the start screen in one short view */
+@media (orientation:landscape) and (max-height:540px){
+  .screen{padding-block:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-bottom,0px))}
+  .sheet{max-width:46rem;gap:10px}
+  h1{font-size:clamp(2.6rem,14vh,4.4rem)}
+  h2{font-size:clamp(2.2rem,11vh,3.4rem)}
+  .lede{font-size:15px;line-height:1.42}
+  .keys{grid-template-columns:auto auto auto 1fr;gap:7px 14px;font-size:12px}
+  .cta{margin-top:0}
+}
 @media (prefers-reduced-motion:reduce){#grain,.cta,#start h1{animation:none}}
