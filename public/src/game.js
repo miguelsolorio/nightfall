@@ -10,6 +10,7 @@ import { updatePlayer } from './player.js';
 import { updateFlashlight, updateBeamVectors } from './flashlight.js';
 import { AudioSys } from './audio.js';
 import { UI, $ } from './ui.js';
+import { track } from './analytics.js';
 import { relics, menuRelic } from './relics.js';
 import { deerHerd } from './creatures/deer.js';
 import { owls } from './creatures/owls.js';
@@ -38,6 +39,7 @@ export function endGame(win) {
   if (document.pointerLockElement) document.exitPointerLock();
   if (win) AudioSys.dawn(); else AudioSys.fadeBeds(0);
   UI.showEnd(win);
+  track(win ? 'game_win' : 'game_death', { stones: game.found, time_sec: Math.round(game.time) });
 }
 // Short scripted beats for the catch and the escape
 export function stepCinematic(dt) {
