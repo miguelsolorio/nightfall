@@ -11,6 +11,7 @@ import { heightAt, cabinToWorld, WELL, CIRCLE, BOULDERS } from './world.js';
 import { game, player } from './state.js';
 import { AudioSys } from './audio.js';
 import { UI } from './ui.js';
+import { track } from './analytics.js';
 
 export const RELIC_SPOTS = [
   { ...cabinToWorld(1.3, -1.3), yo: 1.13 },               // on the cabin table
@@ -69,6 +70,7 @@ export function updateMenuRelic(dt) {
 }
 function collect(r) {
   r.collected = true; r.group.visible = false; game.found++;
+  track('stone_collected', { stone: game.found, time_sec: Math.round(game.time) });
   AudioSys.chime(); UI.setStones(game.found); UI.flash('#bfe9cf', 0.25, 1.2);
   if (game.found >= 5) { game.state = 'winning'; game.cineT = 0; UI.message('The fog is thinning…', 3); AudioSys.fadeBeds(0); }
   else UI.message(REMAIN[game.found - 1], 3.5);
