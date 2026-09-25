@@ -8,7 +8,9 @@ A first-person horror game set in a foggy forest at night. Find five glowing fox
 
 ## Demo
 
-**[Watch the 30-second demo (MP4)](docs/demo.mp4)**. It was recorded in the game, with the encounters staged for the camera.
+https://github.com/user-attachments/assets/6186695a-09e3-443e-91c1-fb2d3aa35693
+
+A [30-second demo]((docs/demo.mp4)) of the gameplay.
 
 ## How to play
 
